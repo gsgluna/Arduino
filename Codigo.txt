@@ -1,72 +1,39 @@
-// Valor máximo temperatura 
+// EmonLibrary examples openenergymonitor.org, Licence GNU GPL V3
 
+#include "EmonLib.h"                   // Include Emon Library
+EnergyMonitor emon1;                   // Create an instance
 
-// Pino de leitura do sensor
-#define ADCPIN 0
+// Tensão da rede 213v
+int rede = 213;
 
-// Variável para temperatura
-float temperatura = 0;
-float temperaturaant = 0;
-float temperaturamax = 0;
+// Entrada analógica onde o densor está ligado
+int pino_sct = A0;
+
 
 void setup()
+{  
+  Serial.begin(9600);
+
+//Pino e Calibração: Cur Const = Ratio/BurdenR  2000/33 = 60.61 
+  
+  emon1.current(pino_sct, 60.61);             // Current: input pin, calibration.
+}
+
+void loop()
 {
-    
-    // Utiliza referencia interna de 1,1v
-    analogReference(INTERNAL);
-    
-    // Inicializa Serial
-    Serial.begin(9600);
+  double Irms = emon1.calcIrms(1480);  // Calculate Irms only
+  
+  Serial.print("Corrente: ");
+  Serial.print(Irms);          // Irms (Corrente)
+  Serial.print(" A   ");
 
-    Serial.println("Rede DOr Sao Luiz - Hospital Memorial Sao Jose");
-    Serial.println("Levantamento de Temperaturas - Cozinha / Nutricao");
-    Serial.println("Data: 03/11/2021");
+  Serial.print("Potência: ");
+  Serial.print(Irms*213);          // Irms x Tensão (Potência)
+  Serial.println(" W");
 
+
+
+  delay(1000);
+    
+  
 }
-
-void loop() {
-    
-    // Fax leitura do sensor pela funcao
-    temperatura = analogAvg(ADCPIN);
-    
-    // Faz conversao de volts pra Celcius
-    temperatura = temperatura * 1100 / (1024 * 10);
-
-   
-    
-    // Imprime temperatura na serial
-    Serial.print("Temperatura = ");
-    Serial.print(temperatura);
-    Serial.println(" C");
-
-    temperaturamax = max(temperaturaant,temperatura);
-    
-    
-    // Imprime temperatura máxima  na serial
-    Serial.print("Temperatura Máxima  = ");
-    Serial.print(temperaturamax);
-    Serial.println(" C");
-    
-    temperaturaant = temperaturamax;
-    
-    
-    delay(1000);
-    
-}
-
-// Funcao para leitura em amostragem
-int analogAvg (int sensorPin) {
-    
-    int total = 0;
-    int amostras = 20;
-    for (int n = 0; n < amostras; n++) {
-        
-        total += analogRead (sensorPin);
-        delay(10); // pequeno atraso entre leituras
-        
-    }
-   
-    return total / amostras; 
-    
-}
-
