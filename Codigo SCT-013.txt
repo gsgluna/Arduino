@@ -1,0 +1,39 @@
+// EmonLibrary examples openenergymonitor.org, Licence GNU GPL V3
+
+#include "EmonLib.h"                   // Include Emon Library
+EnergyMonitor emon1;                   // Create an instance
+
+// Tensão da rede 213v
+int rede = 213;
+
+// Entrada analógica onde o densor está ligado
+int pino_sct = A0;
+
+
+void setup()
+{  
+  Serial.begin(9600);
+
+//Pino e Calibração: Cur Const = Ratio/BurdenR  2000/33 = 60.61 
+  
+  emon1.current(pino_sct, 60.61);             // Current: input pin, calibration.
+}
+
+void loop()
+{
+  double Irms = emon1.calcIrms(1480);  // Calculate Irms only
+  
+  Serial.print("Corrente: ");
+  Serial.print(Irms);          // Irms (Corrente)
+  Serial.print(" A   ");
+
+  Serial.print("Potência: ");
+  Serial.print(Irms*213);          // Irms x Tensão (Potência)
+  Serial.println(" W");
+
+
+
+  delay(1000);
+    
+  
+}
